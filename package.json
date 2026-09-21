@@ -8,6 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "postinstall": "prisma generate",
+    "vercel-build": "node scripts/vercel-build.js",
+    "use:postgres": "node scripts/switch-db.js postgres",
+    "use:sqlite": "node scripts/switch-db.js sqlite",
     "db:push": "prisma db push",
     "db:seed": "node prisma/seed.js",
     "db:studio": "prisma studio"
