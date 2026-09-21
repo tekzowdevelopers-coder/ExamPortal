@@ -1,0 +1,138 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Admin {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         String   @default("ADMIN")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Course {
+  id                 String        @id @default(cuid())
+  courseName         String
+  courseCode         String        @unique
+  description        String?
+  duration           String        @default("15 Hours")
+  trainerName        String        @default("Sankar K")
+  trainerDesignation String        @default("AI Trainer")
+  status             String        @default("PUBLISHED") // DRAFT, PUBLISHED, CLOSED
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  exams              Exam[]
+  questions          Question[]
+  certificates       Certificate[]
+}
+
+model Exam {
+  id                    String        @id @default(cuid())
+  courseId              String
+  course                Course        @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  title                 String
+  duration              Int           @default(60) // minutes
+  totalQuestions        Int           @default(30)
+  marksPerQuestion      Float         @default(1.0)
+  negativeMark          Float         @default(0.0)
+  passingPercentage     Float         @default(50.0)
+  status                String        @default("PUBLISHED") // DRAFT, PUBLISHED, CLOSED
+  randomizeQuestions    Boolean       @default(true)
+  randomizeOptions      Boolean       @default(true)
+  showResultImmediately Boolean       @default(true)
+  showCorrectAnswers    Boolean       @default(false)
+  allowReview           Boolean       @default(true)
+  fullscreenRequired    Boolean       @default(true)
+  tabSwitchWarning      Boolean       @default(true)
+  maxTabSwitches        Int           @default(5)
+  certificateGeneration Boolean       @default(true)
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+  questions             Question[]
+  attempts              ExamAttempt[]
+}
+
+model Question {
+  id            String   @id @default(cuid())
+  courseId      String
+  course        Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  examId        String?
+  exam          Exam?    @relation(fields: [examId], references: [id], onDelete: SetNull)
+  question      String
+  optionA       String
+  optionB       String
+  optionC       String
+  optionD       String
+  correctAnswer String // A, B, C, D
+  explanation   String?
+  marks         Float    @default(1.0)
+  difficulty    String   @default("MEDIUM") // EASY, MEDIUM, HARD
+  topic         String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Student {
+  id                 String        @id @default(cuid())
+  name               String
+  registrationNumber String
+  college            String
+  department         String
+  email              String?
+  phone              String?
+  batch              String?
+  yearSemester       String?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  attempts           ExamAttempt[]
+  certificates       Certificate[]
+
+  @@index([registrationNumber])
+}
+
+model ExamAttempt {
+  id                  String       @id @default(cuid())
+  studentId           String
+  student             Student      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  examId              String
+  exam                Exam         @relation(fields: [examId], references: [id], onDelete: Cascade)
+  startedAt           DateTime     @default(now())
+  expiresAt           DateTime
+  submittedAt         DateTime?
+  answers             String       @default("{}") // JSON { [questionId]: "A" | "B" | "C" | "D" }
+  questionOrder       String       @default("[]") // JSON array of questions with scrambled options
+  score               Float        @default(0.0)
+  percentage          Float        @default(0.0)
+  correctCount        Int          @default(0)
+  wrongCount          Int          @default(0)
+  unansweredCount     Int          @default(0)
+  result              String       @default("PENDING") // PASSED, FAILED, PENDING
+  tabSwitchCount      Int          @default(0)
+  fullscreenExitCount Int          @default(0)
+  eventsLog           String       @default("[]") // JSON array of audit events
+  status              String       @default("IN_PROGRESS") // IN_PROGRESS, SUBMITTED, EXPIRED
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+  certificate         Certificate?
+}
+
+model Certificate {
+  id                 String      @id @default(cuid())
+  certificateId      String      @unique // e.g. TZ-ML-2026-000123
+  studentId          String
+  student            Student     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  courseId           String
+  course             Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  examAttemptId      String      @unique
+  attempt            ExamAttempt @relation(fields: [examAttemptId], references: [id], onDelete: Cascade)
+  issueDate          DateTime    @default(now())
+  verificationStatus String      @default("VALID") // VALID, REVOKED
+  createdAt          DateTime    @default(now())
+}
