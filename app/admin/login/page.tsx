@@ -9,9 +9,6 @@ import {
   Mail,
   ArrowRight,
   AlertCircle,
-  ShieldCheck,
-  CheckCircle2,
-  Sparkles,
 } from "lucide-react";
 
 export default function AdminLoginPage() {
@@ -50,12 +47,6 @@ export default function AdminLoginPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleQuickFill = () => {
-    setEmail("admin@tekzow.com");
-    setPassword("admin123");
-    setError(null);
   };
 
   return (
@@ -110,7 +101,7 @@ export default function AdminLoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@tekzow.com"
+                  placeholder="name@organization.com"
                   className="block w-full pl-10 pr-4 py-3 text-sm bg-slate-900/80 border border-slate-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-white placeholder-slate-500"
                 />
               </div>
@@ -158,23 +149,7 @@ export default function AdminLoginPage() {
             </button>
           </form>
 
-          {/* Demo Account Quick-Fill Card */}
-          <div className="mt-6 pt-5 border-t border-slate-700/80 text-xs">
-            <div className="flex items-center justify-between text-slate-400 mb-2">
-              <span className="font-semibold text-slate-300">Default Admin Credentials:</span>
-              <button
-                type="button"
-                onClick={handleQuickFill}
-                className="text-blue-400 hover:text-blue-300 font-bold underline"
-              >
-                Auto-Fill Demo
-              </button>
-            </div>
-            <div className="bg-slate-900/90 p-2.5 rounded-lg border border-slate-700 font-mono text-[11px] text-slate-300 space-y-0.5">
-              <div>Email: admin@tekzow.com</div>
-              <div>Password: admin123</div>
-            </div>
-          </div>
+
         </div>
 
         <div className="text-center mt-6">
